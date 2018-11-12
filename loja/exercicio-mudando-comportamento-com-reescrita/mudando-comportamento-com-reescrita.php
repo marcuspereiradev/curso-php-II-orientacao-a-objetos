@@ -33,6 +33,7 @@ class ContaPoupanca extends Conta {
 $conta1 = new ContaPoupanca();
 $conta1->deposita(100.0);
 $conta1->saca(50.0);
+echo $conta1->setSaldo($saldo);
 echo "Conta Poupança = ".$conta1->getSaldo();
 
 $conta2 = new Conta();
