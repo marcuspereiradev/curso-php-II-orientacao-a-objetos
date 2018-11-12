@@ -15,26 +15,17 @@
                 from produtos as p join categorias as c on c.id=p.categoria_id");
         
             while($produto_array = mysqli_fetch_assoc($resultado)) {
-        
-                $categoria = new Categoria();
-                $categoria->setNome($produto_array['categoria_nome']);
                 
-                $produto_id = $produto_array['id'];
-                $nome = $produto_array['nome'];
-                $descricao = $produto_array['descricao'];
-                $preco = $produto_array['preco'];
-                $usado = $produto_array['usado'];
-                $isbn = $produto_array['isbn'];
                 $tipoProduto = $produto_array['tipoProduto'];
+                $produto_id = $produto_array['id'];
+                $categoria_nome = $produto_array['categoria_nome'];
+                
+                $factory = new ProdutoFactory();
+                $produto = $factory->criaPor($tipoProduto, $produto_array);
+                $produto->atualizaBaseadoEm($produto_array);
 
-                if($tipoProduto == "Livro") {
-                    $produto = new Livro($nome, $preco, $descricao, $categoria, $usado);
-                    $produto->setIsbn($isbn);
-                }else {
-                    $produto = new Produto($nome, $preco, $descricao, $categoria, $usado);
-                }
-        
                 $produto->setId($produto_id);
+                $produto->getCategoria()->setNome($categoria_nome);
         
                 array_push($produtos, $produto);
             }
@@ -49,11 +40,22 @@
                 $isbn = $produto->getIsbn();
             }
 
+            $taxaImpressao = "";
+            if($produto->temTaxaImpressao()) {
+                $taxaImpressao = $produto->getTaxaImpressao();
+            }
+
+            $waterMark = "";
+            if($produto->temWaterMark()) {
+                $waterMark = $produto->getWaterMark();
+            }
+
             $tipoProduto = get_class($produto);
-            $query = "insert into produtos (nome, preco, descricao, categoria_id, usado, isbn, tipoProduto) 
+
+            $query = "insert into produtos (nome, preco, descricao, categoria_id, usado, isbn, tipoProduto, taxaImpressao, waterMark) 
                 values ('{$produto->getNome()}', {$produto->getPreco()}, 
                     '{$produto->getDescricao()}', {$produto->getCategoria()->getId()}, 
-                        {$produto->isUsado()}, '{$isbn}', '{$tipoProduto}')";
+                        {$produto->isUsado()}, '{$isbn}', '{$tipoProduto}', '{$taxaImpressao}', '{$waterMark}')";
         
             return mysqli_query($this->conexao, $query);
         }
@@ -65,12 +67,22 @@
                 $isbn = $produto->getIsbn();
             }
 
+            $taxaImpressao = "";
+            if($produto->temTaxaImpressao()) {
+                $taxaImpressao = $produto->getTaxaImpressao();
+            }
+
+            $waterMark = "";
+            if($produto->temWaterMark()) {
+                $waterMark = $produto->getWaterMark();
+            }
+
             $tipoProduto = get_class($produto);
         
             $query = "update produtos set nome = '{$produto->getNome()}', 
                 preco = {$produto->getPreco()}, descricao = '{$produto->getDescricao()}', 
                     categoria_id= {$produto->getCategoria()->getId()}, 
-                        usado = {$produto->isUsado()}, isbn = '{$isbn}', tipoProduto = '{$tipoProduto}' where id = '{$produto->getId()}'";
+                        usado = {$produto->isUsado()}, isbn = '{$isbn}', tipoProduto = '{$tipoProduto}', taxaImpressao = '{$taxaImpressao}', waterMark = '{$waterMark}' where id = '{$produto->getId()}'";
         
             return mysqli_query($this->conexao, $query);
         }
@@ -81,25 +93,16 @@
             $resultado = mysqli_query($this->conexao, $query);
             $produto_buscado = mysqli_fetch_assoc($resultado);
         
-            $categoria = new Categoria();
-            $categoria->setId($produto_buscado['categoria_id']);
-        
-            $produto_id = $produto_buscado['id'];
-            $nome = $produto_buscado['nome'];
-            $descricao = $produto_buscado['descricao'];
-            $preco = $produto_buscado['preco'];
-            $usado = $produto_buscado['usado'];
-            $isbn = $produto_buscado['isbn'];
             $tipoProduto = $produto_buscado['tipoProduto'];
-
-            if($tipoProduto == "Livro") {
-                $produto = new Livro($nome, $preco, $descricao, $categoria, $usado);
-                $produto->setIsbn($isbn);
-            }else {
-                $produto = new Produto($nome, $preco, $descricao, $categoria, $usado);
-            }
+            $produto_id = $produto_buscado['id'];
+            $categoria_id = $produto_buscado['categoria_id'];
+        
+            $factory = new ProdutoFactory();
+            $produto = $factory->criaPor($tipoProduto, $produto_buscado);
+            $produto->atualizaBaseadoEm($produto_buscado);
         
             $produto->setId($produto_id);
+            $produto->getCategoria()->setId($categoria_id);
         
             return $produto;
         }
