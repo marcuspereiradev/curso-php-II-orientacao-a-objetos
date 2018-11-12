@@ -44,25 +44,21 @@
 	<td>Tipo do Produto</td>
 	<td>
 		<select name="tipoProduto" class="form-control">
-			<?php
-			$tipos = array("Produto", "Livro Fisico", "Ebook");
-			foreach($tipos as $tipo) : 
-				$tipoSemEspaco = str_replace(" ", "", $tipo);
-				$essaEhOTipo = get_class($produto) == $tipoSemEspaco;
-				$selecao = $essaEhOTipo ? "selected='selected'" : "";
-			?>
-				<?php if($tipo == "Livro Fisico") :?>
-					<optgroup label="Livros">
-				<?php endif ?>
+			<optgroup label="Livros">
+				<?php
+				$tipos = array("Livro Fisico", "Ebook");
+				foreach($tipos as $tipo) : 
+					$tipoSemEspaco = str_replace(" ", "", $tipo);
+					$essaEhOTipo = get_class($produto) == $tipoSemEspaco;
+					$selecao = $essaEhOTipo ? "selected='selected'" : "";
+				?>
 					<option value="<?=$tipoSemEspaco?>" <?=$selecao?>>
 						<?=$tipo?>
 					</option>
-				<?php if($tipo == "Ebook") :?>
-					</optgroup>
-				<?php endif ?>
-			<?php 
-			endforeach
-			?>
+				<?php 
+				endforeach
+				?>
+			</optgroup>
 		</select>
 	</td>
 </tr>
